@@ -1,0 +1,10 @@
+#Usar diferents branchs
+#Testar processamento web local(esp devolvendo a pagina web) vs esp como meio de ingestão de dados apenas
+#Dockerizar tudo isso e usar docker compose para a aplicação final
+
+
+Criar um Pub/Sub para requisição dos dados do sensor
+Criar uma apliacação Flask 
+    -Grafico atualizado
+    -Set de frequencia para controle da frequencia de amostragem
+
