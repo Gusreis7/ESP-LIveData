@@ -6,21 +6,41 @@
     <title>Real-Time Sensor Data</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+    <style>
+        #description {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+        .chart-container {
+            height: 200px;
+            margin-bottom: 30px; /* Espaçamento maior entre os gráficos */
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
     <div class="row">
-        <div class="col-6">
-            <div class="card">
+        <div class="col-md-6" id="description">
+            <h2>Real-Time Sensor Monitoring</h2>
+            <p>This application displays real-time data from a DHT sensor. The charts on the right show humidity and temperature values updated continuously as data is received.</p>
+            <button type="button" class="btn btn-primary mt-2">Button 1</button>
+            <button type="button" class="btn btn-secondary mt-2">Button 2</button>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
                 <div class="card-body">
-                    <canvas id="humidityChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="humidityChart"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-6">
             <div class="card">
                 <div class="card-body">
-                    <canvas id="temperatureChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="temperatureChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,7 +61,9 @@
                     backgroundColor: backgroundColor,
                     borderColor: borderColor,
                     data: [],
-                    fill: false,
+                    fill: true, // Preenche a área abaixo da linha
+                    lineTension: 0.4, // Torna a linha suave
+                    pointRadius: 0, // Remove os pontos
                 }],
             },
             options: {
@@ -60,11 +82,7 @@
                 },
                 scales: {
                     xAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: false,
-                            labelString: 'Time'
-                        }
+                        display: false,  // Esconde o eixo X
                     }],
                     yAxes: [{
                         display: true,
@@ -94,7 +112,7 @@
                     humidityChart.data.labels.shift();
                     humidityChart.data.datasets[0].data.shift();
                 }
-                humidityChart.data.labels.push(data.time);
+                humidityChart.data.labels.push('');
                 humidityChart.data.datasets[0].data.push(data.value);
                 humidityChart.update();
             }
@@ -105,7 +123,7 @@
                     temperatureChart.data.labels.shift();
                     temperatureChart.data.datasets[0].data.shift();
                 }
-                temperatureChart.data.labels.push(data.time);
+                temperatureChart.data.labels.push('');
                 temperatureChart.data.datasets[0].data.push(data.value);
                 temperatureChart.update();
             }
