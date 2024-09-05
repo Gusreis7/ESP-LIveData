@@ -15,7 +15,7 @@
         }
         .chart-container {
             height: 200px;
-            margin-bottom: 30px; /* Espaçamento maior entre os gráficos */
+            margin-bottom: 30px; 
         }
     </style>
 </head>
@@ -25,9 +25,14 @@
         <div class="col-md-6" id="description">
             <h2>Real-Time Sensor Monitoring</h2>
             <p>This application displays real-time data from a DHT sensor. The charts on the right show humidity and temperature values updated continuously as data is received.</p>
-            <button type="button" class="btn btn-primary mt-2">Button 1</button>
-            <button type="button" class="btn btn-secondary mt-2">Button 2</button>
+
+            <div class="form-group">
+                <label for="updateFrequency">Update Frequency (in minutes):</label>
+                <input type="number" id="updateFrequency" class="form-control" value="1" min="1">
+            </div>
+            <button id="setFrequencyBtn" class="btn btn-primary">Set Update Frequency</button>
         </div>
+
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-body">
@@ -61,13 +66,20 @@
                     backgroundColor: backgroundColor,
                     borderColor: borderColor,
                     data: [],
-                    fill: true, // Preenche a área abaixo da linha
-                    lineTension: 0.4, // Torna a linha suave
-                    pointRadius: 0, // Remove os pontos
+                    fill: true,
+                    lineTension: 0.4,
+                    pointRadius: 0,
                 }],
             },
             options: {
                 responsive: true,
+                animation: {
+                    duration: 1000,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: false,
+                },
                 title: {
                     display: true,
                     text: label
@@ -75,14 +87,11 @@
                 tooltips: {
                     mode: 'index',
                     intersect: false,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
+                    animation: false,
                 },
                 scales: {
                     xAxes: [{
-                        display: false,  // Esconde o eixo X
+                        display: false,
                     }],
                     yAxes: [{
                         display: true,
@@ -101,33 +110,49 @@
         const humidityChart = new Chart(humidityContext, createChartConfig('Humidity', 'rgba(54, 162, 235, 1)', 'rgba(54, 162, 235, 0.2)'));
         const temperatureChart = new Chart(temperatureContext, createChartConfig('Temperature', 'rgba(255, 99, 132, 1)', 'rgba(255, 99, 132, 0.2)'));
 
-        const source = new EventSource("/chart-data");
+        let eventSource;
 
-        source.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            
-            // Update Humidity Chart
-            if (data.endpoint === 'humidity') {
-                if (humidityChart.data.labels.length === 20) {
-                    humidityChart.data.labels.shift();
-                    humidityChart.data.datasets[0].data.shift();
-                }
-                humidityChart.data.labels.push('');
-                humidityChart.data.datasets[0].data.push(data.value);
-                humidityChart.update();
+        const startStream = (updateInterval) => {
+            if (eventSource) {
+                eventSource.close(); 
             }
             
-            // Update Temperature Chart
-            if (data.endpoint === 'temperature') {
-                if (temperatureChart.data.labels.length === 20) {
-                    temperatureChart.data.labels.shift();
-                    temperatureChart.data.datasets[0].data.shift();
+            eventSource = new EventSource(`/chart-data?update_interval=${updateInterval}`);
+
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                
+                if (data.endpoint === 'humidity' || data.endpoint === 'humidity_avg') {
+                    if (humidityChart.data.labels.length === 20) {
+                        humidityChart.data.labels.shift();
+                        humidityChart.data.datasets[0].data.shift();
+                    }
+                    humidityChart.data.labels.push('');
+                    humidityChart.data.datasets[0].data.push(data.value);
+                    humidityChart.update();
                 }
-                temperatureChart.data.labels.push('');
-                temperatureChart.data.datasets[0].data.push(data.value);
-                temperatureChart.update();
-            }
+               
+
+              
+                if (data.endpoint === 'temperature' || data.endpoint === 'temperature_avg') {
+                    if (temperatureChart.data.labels.length === 20) {
+                        temperatureChart.data.labels.shift();
+                        temperatureChart.data.datasets[0].data.shift();
+                    }
+                    temperatureChart.data.labels.push('');
+                    temperatureChart.data.datasets[0].data.push(data.value);
+                    temperatureChart.update();
+                }
+               
+            };
         };
+
+        startStream(1);
+
+        $('#setFrequencyBtn').click(function () {
+            const updateFrequency = $('#updateFrequency').val();
+            startStream(updateFrequency);
+        });
     });
 </script>
 </body>
