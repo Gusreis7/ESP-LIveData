@@ -1,10 +1,9 @@
-#Usar diferents branchs
-#Testar processamento web local(esp devolvendo a pagina web) vs esp como meio de ingestão de dados apenas
+#Usar diferents branchs ok
 #Dockerizar tudo isso e usar docker compose para a aplicação final
 #testar mqtt
 
-Criar algo como um Pub/Sub para requisição dos dados do sensor
+Criar algo como um Pub/Sub para requisição dos dados do sensor - ok
 Criar uma aplicação Flask 
-    -Grafico atualizado
-    -Set de frequencia para controle da frequencia de amostragem
+    -Grafico atualizado  - ok
+    -Set de frequencia para controle da frequencia de amostragem -ok
 
